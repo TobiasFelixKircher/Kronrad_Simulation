@@ -1,0 +1,24 @@
+zylinder:
+  durchmesser: 100.0          # mm
+  hoehe: 20.0                # mm
+  loch_durchmesser: 50.0     # mm
+
+stirnrad:
+  teeth_spur: 20          # Anzahl Zähne
+  module: 5.0             # Modul in mm
+  breite: 10.0            # Stirnradbreite (extrusion)
+  fillet: 0.5             # Fußrundung in mm
+  backlash: 0.1           # Zahnspiel in mm
+  pressure_angle: 20      # Eingriffswinkel in Grad
+  gear_gen_args:          # Einstellungen für die Evolventen-Generierung
+    max_steps: 300
+    arc_step_size: 0.05
+    reduction_tolerance_deg: 0.5
+
+eingriff:
+  tiefe: 0.5 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
+  winkel:
+
+export:
+  verzeichnis: "export"
+  dateiname: "kronrad_simulation.stl"
