@@ -17,7 +17,7 @@ stirnrad:
 
 eingriff:
   tiefe: 0.6 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
-  winkel: #Hey ich bins
+  winkel: #Hey ich bins Larissa
 
 export:
   verzeichnis: "export"
