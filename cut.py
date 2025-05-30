@@ -26,8 +26,14 @@ gear = InvoluteGear(stirnrad_config)
 stirnrad_rohling = gear.get_cq_model(spur_cfg)
 
 # Position berechnen (Mittelpunkt soll in Ursprung starten)
-zyl_radius = zyl_durchmesser / 2
+# Teilkreisradius des Stirnrads
 rad_radius = (stirnrad_config["module"] * stirnrad_config["teeth_spur"]) / 2
+
+# Zylinderradius (Außendurchmesser / 2)
+zyl_radius = zyl_durchmesser / 2
+
+# Korrektes Wälzverhältnis gemäß Evolvententheorie
+wälzverhältnis = rad_radius / zyl_radius
 
 # Positionierung des Stirnrads
 position = (
@@ -39,7 +45,6 @@ position = (
 # Anzahl Schritte der Simulation
 n_steps = 10
 delta_theta_rad = 1  # Schrittweite Drehwinkel Stirnrad [Grad]
-wälzverhältnis = rad_radius / zyl_radius
 
 # Startmodell
 bearbeitet = zylinder
