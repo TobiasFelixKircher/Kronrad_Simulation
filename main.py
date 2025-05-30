@@ -1,7 +1,7 @@
 from utils.parameter_laden import parameter
 import sys
 from pathlib import Path
-
+#nochmal ein Test
 # Lokalen Pfad einbinden
 projektpfad = Path(__file__).resolve().parent
 if str(projektpfad) not in sys.path:
