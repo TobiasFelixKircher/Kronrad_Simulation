@@ -1,61 +1,64 @@
+
+
+import math
 import cadquery as cq
 from utils.parameter_laden import parameter
 from modelle.zylinder import erzeuge_zylinder
 from modelle.evolventenrad import InvoluteGear
-import math
 
 # Parameter laden
 zyl_config = parameter["zylinder"]
-stirnrad_config = parameter["stirnrad"]
+stirn_config = parameter["stirnrad"]
+eingriff = parameter["eingriff"]
 
-eingriff = parameter["eingriff"]["tiefe"]
+zyl_durchmesser = zyl_config["durchmesser"]
+zyl_hoehe = zyl_config["hoehe"]
+loch_durchmesser = zyl_config["loch_durchmesser"]
 
-zyl_durchmesser = parameter["zylinder"]["durchmesser"]
-zyl_hoehe = parameter["zylinder"]["hoehe"]
-loch_durchmesser = parameter["zylinder"]["loch_durchmesser"]
+stirn_zähne = stirn_config["teeth_spur"]
+stirn_modul = stirn_config["module"]
+stirn_breite = stirn_config["breite"]
 
+zyl_radius = zyl_durchmesser / 2
+stirn_radius = (stirn_modul * stirn_zähne) / 2
+
+# Wälzverhältnis: Zylinder dreht sich langsamer als das Stirnrad
+wälzverhältnis = stirn_radius / zyl_radius
+
+# Simulationsparameter
+n_steps = 60
+delta_theta_deg = 6  # Schrittweite Stirnrad in Grad
+
+# Modelle erzeugen
 zylinder = erzeuge_zylinder(zyl_durchmesser, zyl_hoehe, loch_durchmesser)
-
-# Stirnrad-Position: rechts oben am Zylinderrand (unterster Punkt auf halber Höhe des Zylinders)
-stirnrad_durchmesser = stirnrad_config["module"] * stirnrad_config["teeth_spur"]
-position = (0, -zyl_durchmesser / 2, zyl_hoehe * (1-parameter["eingriff"]["tiefe"]) + (parameter ["stirnrad"]["module"] * parameter["stirnrad"]["teeth_spur"]) / 2 + parameter["stirnrad"]["module"])
-
-# Stirnrad-Geometrie erzeugen
 spur_cfg = {
-    "spur_gear_width": stirnrad_config["breite"],
+    "spur_gear_width": stirn_breite,
     "y_shift": 0,
     "z_shift": 0
 }
-gear = InvoluteGear(stirnrad_config)
-stirnrad_rohling = gear.get_cq_model(spur_cfg)
+stirnrad_rohling = InvoluteGear(stirn_config)
 
-
-# Simulationsparameter
-steps = 10
-winkel_pro_step = 360 / steps
-r_zyl = zyl_durchmesser / 2
-r_stirn = (stirnrad_config["module"] * stirnrad_config["teeth_spur"]) / 2
-winkelverhältnis = r_zyl / r_stirn
-
-# Ausgangsmodell
+# Startzustand
 bearbeitet = zylinder
 
-for i in range(steps):
-    print("Simulationsschritt " + str(i) +" ausgeführt")
-    winkel_zyl = math.radians(i * winkel_pro_step)
-    winkel_stirn = math.radians(i * winkel_pro_step * winkelverhältnis)
+# Position Stirnrad über Zylinderrand setzen
+eingriffs_tiefe = eingriff["tiefe"]
+y_shift = zyl_radius
+z_shift = zyl_hoehe * (1 - eingriffs_tiefe) + stirn_radius
+position = (0, y_shift, z_shift)
 
-    # Position berechnen
-    x = 0
-    y = math.sin(winkel_zyl) * r_zyl
-    z = math.cos(winkel_zyl) * r_zyl + zyl_hoehe * (1 - eingriff)
+for i in range(n_steps):
+    winkel_rad = math.radians(delta_theta_deg * i)
+    winkel_zyl = math.radians(delta_theta_deg * wälzverhältnis * i)
 
-    # Stirnrad kopieren, drehen und positionieren
-    stirnrad = stirnrad_rohling.rotate((0, -zyl_durchmesser / 2, zyl_hoehe * (1 - parameter["eingriff"]["tiefe"]) + (parameter["stirnrad"]["module"] * parameter["stirnrad"]["teeth_spur"]) / 2 + parameter["stirnrad"]["module"]), (0, 1, 0), 15)
-    stirnrad = stirnrad.translate((x, y, z))
+    stirnrad_modell = stirnrad_rohling.get_cq_model(spur_cfg)
+    stirnrad_rot = stirnrad_modell.rotate((0, 0, 0), (0, 1, 0), math.degrees(winkel_rad))
+    stirnrad_rot = stirnrad_rot.translate(position)
 
-    # Zylinder abtragen
-    bearbeitet = bearbeitet.cut(stirnrad)
+    zylinder_rot = bearbeitet.rotate((0, 0, 0), (0, 0, 1), math.degrees(winkel_zyl))
+    bearbeitet = zylinder_rot.cut(stirnrad_rot)
 
-# Exportieren
-cq.exporters.export(bearbeitet, "export/abwaelzung_simuliert.stl")
+    print(f"Simulationsschritt {i+1}/{n_steps} abgeschlossen")
+
+cq.exporters.export(bearbeitet, "export/abwaelzen.stl")
+print("📦 Export abgeschlossen: export/abwaelzen.stl")

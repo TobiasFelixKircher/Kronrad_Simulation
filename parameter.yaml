@@ -1,7 +1,7 @@
 zylinder:
   durchmesser: 100.0          # mm
-  hoehe: 20.0                # mm
-  loch_durchmesser: 20.0     # mm
+  hoehe: 15.0                # mm
+  loch_durchmesser: 50.0     # mm
 
 stirnrad:
   teeth_spur: 20          # Anzahl Zähne
@@ -16,9 +16,9 @@ stirnrad:
     reduction_tolerance_deg: 0.5
 
 eingriff:
-  tiefe: 0.6 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
-  winkel: #Hey ich bins Tobi, kannst du mir antworten?
-  #jajaajajaj
+  tiefe: 0.8 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
+  winkel:
+
 
 export:
   verzeichnis: "export"

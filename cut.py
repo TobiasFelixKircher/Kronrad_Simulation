@@ -42,23 +42,34 @@ position = (
     zyl_hoehe * (1 - eingriff_config["tiefe"]) + rad_radius + stirnrad_config["module"]
 )
 
-# Anzahl Schritte der Simulation
-n_steps = 10
-delta_theta_rad = 1  # Schrittweite Drehwinkel Stirnrad [Grad]
+# === Korrektes Abwälzen: Evolventengeometrie ===
 
-# Startmodell
+# Parameter
+delta_theta_stirn_deg = 3
+n_steps = int(33 / delta_theta_stirn_deg)
+delta_theta_zyl_deg = delta_theta_stirn_deg * wälzverhältnis
+
+# Vorbereitung
 bearbeitet = zylinder
 
-# Simulationsschritte
 for i in range(n_steps):
-    winkel_rad = delta_theta_rad * i
-    winkel_zyl = delta_theta_rad * wälzverhältnis * i
+    # Drehwinkel berechnen
+    stirn_winkel = i * delta_theta_stirn_deg
+    zyl_winkel = i * delta_theta_zyl_deg
 
-    stirnrad_rot = stirnrad_rohling.rotate((0, 0, 0), (0, 1, 0), winkel_rad)
-    stirnrad_rot = stirnrad_rot.translate(position)
-    zylinder_rot = bearbeitet.rotate((0, 0, 0), (0, 0, 1), winkel_zyl)
-    bearbeitet = zylinder_rot.cut(stirnrad_rot)
-    print(f"Simulationsschritt {i + 1} ausgeführt")
+    # Stirnrad: fest im Raum, rotiert nur um eigene Y-Achse
+    stirn_i = stirnrad_rohling.rotate((0, 0, 0), (0, 1, 0), stirn_winkel)
+    stirn_i = stirn_i.translate(position)
 
-# Exportieren
+    # Zylinder: rotiert synchron zur Stirnradbewegung um Z-Achse
+    zyl_i = bearbeitet.rotate((0, 0, 0), (0, 0, 1), zyl_winkel)
+
+    try:
+        bearbeitet = zyl_i.cut(stirn_i)
+        print(f"✅ Schritt {i + 1}/{n_steps}: Stirnrad {stirn_winkel:.1f}°, Zylinder {zyl_winkel:.1f}°")
+    except Exception as e:
+        print(f"⚠️ Fehler in Schritt {i + 1}: {e}")
+
+# Export
 cq.exporters.export(bearbeitet, "export/abwaelzen.stl")
+print("📦 Export abgeschlossen: export/abwaelzen.stl")
