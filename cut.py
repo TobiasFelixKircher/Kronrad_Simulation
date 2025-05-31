@@ -45,8 +45,8 @@ position = (
 # === Korrektes Abwälzen: Evolventengeometrie ===
 
 # Parameter
-delta_theta_stirn_deg = 3
-n_steps = int(33 / delta_theta_stirn_deg)
+delta_theta_stirn_deg = 1
+n_steps = int(360 / delta_theta_stirn_deg)
 delta_theta_zyl_deg = delta_theta_stirn_deg * wälzverhältnis
 
 # Vorbereitung
