@@ -16,7 +16,7 @@ stirnrad:
     reduction_tolerance_deg: 0.5
 
 eingriff:
-  tiefe: 0.8 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
+  tiefe: 0.7 #in Prozent, Zahl zwischen 0 und 1. Gibt Eingriffstiefe des Stirnrads in den Zylinder
   winkel:
 
 
